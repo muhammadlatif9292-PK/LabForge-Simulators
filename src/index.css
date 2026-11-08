@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-mono: "JetBrains Mono", "Courier New", Courier, monospace;
+
+  --color-bg: #0D0E10;
+  --color-surface: #1A1C1E;
+  --color-border-dim: #2D3136;
+  --color-accent: #3A86FF;
+  --color-warning: #FFBE0B;
+  --color-danger: #FF006E;
+  --color-success: #06D6A0;
+  --color-text-primary: #E9ECEF;
+  --color-text-secondary: #9BA1A6;
+}
+
+@layer base {
+  body {
+    @apply bg-bg text-text-primary font-sans antialiased;
+  }
+}
+
+@keyframes node-pop-in {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.node-pop-in {
+  animation: node-pop-in 150ms ease-out forwards;
+}
+
+@keyframes flash-red {
+  0%, 100% { border-color: transparent; box-shadow: none; }
+  50% { border-color: #ef4444; box-shadow: 0 0 15px rgba(239, 68, 68, 0.5); }
+}
+
+.flash-red {
+  animation: flash-red 400ms ease-in-out;
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 8s linear infinite;
+}
+

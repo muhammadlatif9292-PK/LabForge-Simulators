@@ -1,0 +1,23 @@
+/* tokens.css - Design system tokens for the chemistry lab */
+:root {
+  --chem-bg: #0d0f14;
+  --chem-surface: #141820;
+  --chem-surface2: #1a1d26;
+  --chem-surface3: #1e2230;
+  --chem-border: #2a2f3d;
+  --chem-teal: #1a9e7a;
+  --chem-teal-light: #22c9a0;
+  --chem-amber: #f59e0b;
+  --chem-danger: #ef4444;
+  --chem-success: #22c55e;
+  --chem-info: #3b82f6;
+  --chem-node-substance: #1a9e7a;
+  --chem-node-container: #3b82f6;
+  --chem-node-condition: #f59e0b;
+  --chem-node-sensor: #8b5cf6;
+  --chem-node-action: #ef4444;
+  --chem-node-output: #22c55e;
+  --chem-font-mono: 'JetBrains Mono', 'Courier New', monospace;
+  --chem-radius: 12px;
+  --chem-radius-sm: 6px;
+}
