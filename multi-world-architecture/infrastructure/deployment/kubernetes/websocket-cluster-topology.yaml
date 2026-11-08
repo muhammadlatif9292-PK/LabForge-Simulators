@@ -1,0 +1,77 @@
+# infrastructure/deployment/kubernetes/websocket-cluster-topology.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: websocket-cluster-config
+  namespace: labforge-system
+data:
+  # Redis-based pub/sub for realtime WebSocket cluster
+  redis-addr: "redis-cluster.labforge-data.svc.cluster.local:6379"
+  redis-password: ""
+  redis-db: "0"
+  channel-prefix: "labforge:realtime:"
+  presence-key: "labforge:presence"
+  session-ttl: "3600"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: realtime-service
+  namespace: labforge-system
+  labels:
+    app: realtime-service
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: realtime-service
+  template:
+    metadata:
+      labels:
+        app: realtime-service
+    spec:
+      containers:
+      - name: realtime
+        image: labforge/realtime-service:latest
+        ports:
+        - containerPort: 4000
+          name: ws
+        env:
+        - name: REDIS_URL
+          valueFrom:
+            configMapKeyRef:
+              name: websocket-cluster-config
+              key: redis-addr
+        - name: SERVICE_NAME
+          value: "realtime-service"
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 4000
+          initialDelaySeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 4000
+          initialDelaySeconds: 10
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: realtime-service
+  namespace: labforge-system
+spec:
+  selector:
+    app: realtime-service
+  ports:
+  - port: 4000
+    targetPort: 4000
+    protocol: TCP
+  clusterIP: None  # headless service for StatefulSet-style routing (optional)

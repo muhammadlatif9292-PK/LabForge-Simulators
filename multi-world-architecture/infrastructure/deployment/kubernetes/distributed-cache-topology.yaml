@@ -1,0 +1,72 @@
+# infrastructure/deployment/kubernetes/distributed-cache-topology.yaml
+# Redis Cluster for Cache, Locks, and Pub/Sub
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-cluster-config
+  namespace: labforge-data
+data:
+  redis.conf: |
+    port 6379
+    cluster-enabled yes
+    cluster-config-file /data/nodes.conf
+    cluster-node-timeout 5000
+    appendonly yes
+    save 60 1000
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis-cluster
+  namespace: labforge-data
+spec:
+  serviceName: "redis-cluster"
+  replicas: 6  # 3 master + 3 replica minimum
+  selector:
+    matchLabels:
+      app: redis-cluster
+  template:
+    metadata:
+      labels:
+        app: redis-cluster
+    spec:
+      containers:
+      - name: redis
+        image: redis:7.0-alpine
+        command: ["redis-server"]
+        args: ["/usr/local/etc/redis/redis.conf"]
+        ports:
+        - containerPort: 6379
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "2Gi"
+            cpu: "1"
+        volumeMounts:
+        - name: redis-config
+          mountPath: /usr/local/etc/redis
+        - name: redis-data
+          mountPath: /data
+  volumeClaimTemplates:
+  - metadata:
+      name: redis-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 20Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-cluster
+  namespace: labforge-data
+spec:
+  ports:
+  - port: 6379
+    targetPort: 6379
+  clusterIP: None
+  selector:
+    app: redis-cluster

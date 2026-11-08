@@ -1,0 +1,57 @@
+# infrastructure/deployment/kubernetes/simulation-worker-cluster.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: simulation-worker
+  namespace: labforge-simulation
+spec:
+  serviceName: "simulation-worker"
+  replicas: 2
+  selector:
+    matchLabels:
+      app: simulation-worker
+  template:
+    metadata:
+      labels:
+        app: simulation-worker
+    spec:
+      containers:
+      - name: worker
+        image: labforge/simulation-worker:latest
+        ports:
+        - containerPort: 6000
+        env:
+        - name: SIMULATION_COORDINATOR_URL
+          value: "http://simulation-coordinator:6001"
+        - name: DETERMINISTIC_MODE
+          value: "true"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "1"
+          limits:
+            memory: "4Gi"
+            cpu: "4"
+        volumeMounts:
+        - name: checkpoints
+          mountPath: /var/lib/simulation/checkpoints
+  volumeClaimTemplates:
+  - metadata:
+      name: checkpoints
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 10Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: simulation-coordinator
+  namespace: labforge-simulation
+spec:
+  selector:
+    app: simulation-coordinator
+  ports:
+  - port: 6001
+  clusterIP: None

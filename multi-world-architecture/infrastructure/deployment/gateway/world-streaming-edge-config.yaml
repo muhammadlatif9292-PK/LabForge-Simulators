@@ -1,0 +1,56 @@
+# infrastructure/deployment/gateway/world-streaming-edge-config.yaml
+# World Streaming Edge Configuration
+# Deployed as a set of edge nodes for low-latency asset delivery.
+# This config is for the NGINX/Envoy-based edge proxy.
+
+clusters:
+- name: world-streaming-edge
+  connect_timeout: 0.25s
+  type: STRICT_DNS
+  lb_policy: ROUND_ROBIN
+  http2_protocol_options: {}
+  load_assignment:
+    cluster_name: world-streaming-edge
+    endpoints:
+    - lb_endpoints:
+      - endpoint:
+          address:
+            socket_address:
+              address: assets-origin.labforge.internal
+              port_value: 443
+  transport_socket:
+    name: envoy.transport_sockets.tls
+    typed_config:
+      "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext
+      common_tls_context:
+        tls_params:
+          tls_minimum_protocol_version: TLSv1_2
+        validation_context:
+          trusted_ca:
+            filename: /etc/ssl/certs/ca-certificates.crt
+  health_checks:
+  - timeout: 1s
+    interval: 5s
+    unhealthy_threshold: 2
+    healthy_threshold: 2
+    http_health_check:
+      path: /health
+  circuit_breakers:
+    thresholds:
+    - priority: DEFAULT
+      max_connections: 1000
+      max_pending_requests: 200
+      max_requests: 500
+
+routes:
+- match:
+    prefix: "/assets/"
+  route:
+    cluster: world-streaming-edge
+    timeout: 0s
+    idle_timeout: 300s
+    auto_host_rewrite: true
+    retry_policy:
+      retry_on: "5xx,reset,connect-failure"
+      num_retries: 2
+      per_try_timeout: 5s

@@ -1,0 +1,1788 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChemLab Engine â€” Screen Previews</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg:          #0a0c11;
+    --surface:     #111520;
+    --surface2:    #161c28;
+    --surface3:    #1c2335;
+    --border:      #222b3e;
+    --border2:     #2a3550;
+    --teal:        #0fd4a4;
+    --teal-dim:    #0a8f6e;
+    --teal-dark:   #062e25;
+    --amber:       #f5a623;
+    --danger:      #e84040;
+    --success:     #22cc74;
+    --info:        #4a9eff;
+    --purple:      #9b6bff;
+    --muted:       #4a5568;
+    --text:        #c8d4e8;
+    --text-dim:    #6b7fa0;
+    --text-bright: #f0f4ff;
+    --mono:        'JetBrains Mono', monospace;
+    --sans:        'DM Sans', sans-serif;
+    --display:     'Syne', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #05070d;
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+  }
+
+  /* â”€â”€ PAGE WRAPPER â”€â”€ */
+  .page {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 48px 32px;
+  }
+
+  /* â”€â”€ HEADER â”€â”€ */
+  .page-header {
+    text-align: center;
+    margin-bottom: 64px;
+  }
+  .page-header .badge {
+    display: inline-block;
+    background: var(--teal-dark);
+    border: 1px solid var(--teal-dim);
+    color: var(--teal);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+  }
+  .page-header h1 {
+    font-family: var(--display);
+    font-size: 52px;
+    font-weight: 800;
+    color: var(--text-bright);
+    letter-spacing: -1px;
+    line-height: 1.1;
+    margin-bottom: 14px;
+  }
+  .page-header h1 span { color: var(--teal); }
+  .page-header p {
+    color: var(--text-dim);
+    font-size: 17px;
+    max-width: 520px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* â”€â”€ SCREEN SECTION â”€â”€ */
+  .screen-section {
+    margin-bottom: 80px;
+  }
+  .screen-label {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .screen-number {
+    width: 34px; height: 34px;
+    background: var(--teal);
+    color: #000;
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 700;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .screen-title {
+    font-family: var(--display);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-bright);
+  }
+  .screen-desc {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  /* â”€â”€ CHROME FRAME â”€â”€ */
+  .chrome {
+    background: #0c0f18;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.03),
+      0 40px 80px rgba(0,0,0,0.6),
+      0 0 120px rgba(15,212,164,0.04);
+  }
+  .chrome-bar {
+    background: #0d1019;
+    border-bottom: 1px solid var(--border);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .chrome-dots {
+    display: flex; gap: 6px;
+  }
+  .chrome-dots span {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    display: block;
+  }
+  .chrome-dots span:nth-child(1) { background: #e84040; }
+  .chrome-dots span:nth-child(2) { background: #f5a623; }
+  .chrome-dots span:nth-child(3) { background: var(--teal); }
+  .chrome-url {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    max-width: 400px;
+    margin: 0 auto;
+  }
+
+  /* â”€â”€ COMMON UI PARTS â”€â”€ */
+  .mono { font-family: var(--mono); }
+  .teal { color: var(--teal); }
+  .amber { color: var(--amber); }
+  .danger { color: var(--danger); }
+  .muted { color: var(--text-dim); }
+  .dim { color: var(--muted); }
+
+  .tag {
+    display: inline-flex; align-items: center;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+  }
+  .tag-teal  { background: rgba(15,212,164,0.12); color: var(--teal); border: 1px solid rgba(15,212,164,0.25); }
+  .tag-amber { background: rgba(245,166,35,0.12);  color: var(--amber); border: 1px solid rgba(245,166,35,0.25); }
+  .tag-red   { background: rgba(232,64,64,0.12);   color: var(--danger); border: 1px solid rgba(232,64,64,0.25); }
+  .tag-blue  { background: rgba(74,158,255,0.12);  color: var(--info);   border: 1px solid rgba(74,158,255,0.25); }
+  .tag-purple{ background: rgba(155,107,255,0.12); color: var(--purple); border: 1px solid rgba(155,107,255,0.25); }
+  .tag-green { background: rgba(34,204,116,0.12);  color: var(--success); border: 1px solid rgba(34,204,116,0.25); }
+
+  /* â”€â”€ SHARED APP SHELL â”€â”€ */
+  .app-shell {
+    display: flex;
+    height: 580px;
+    background: var(--bg);
+    font-size: 12px;
+  }
+
+  /* TOP BAR */
+  .top-bar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    height: 46px;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 16px;
+    flex-shrink: 0;
+  }
+  .top-bar-logo {
+    font-family: var(--display);
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--text-bright);
+    display: flex; align-items: center; gap: 7px;
+  }
+  .top-bar-logo .dot {
+    width: 8px; height: 8px;
+    background: var(--teal);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--teal);
+  }
+  .top-bar-spacer { flex: 1; }
+  .top-bar-btn {
+    height: 30px;
+    padding: 0 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border2);
+    background: var(--surface2);
+    color: var(--text-dim);
+    font-size: 11px;
+    font-family: var(--sans);
+    display: flex; align-items: center; gap: 5px;
+    cursor: pointer;
+  }
+  .top-bar-btn.primary {
+    background: var(--teal);
+    color: #000;
+    border-color: var(--teal);
+    font-weight: 600;
+  }
+  .top-bar-btn.active {
+    background: rgba(15,212,164,0.12);
+    border-color: var(--teal-dim);
+    color: var(--teal);
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 240px;
+    min-width: 240px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .sidebar-search {
+    margin: 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 7px 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--muted);
+    font-size: 11px;
+  }
+  .sidebar-section {
+    padding: 8px 10px 4px;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  .sidebar-item {
+    padding: 7px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    border-radius: 6px;
+    margin: 1px 6px;
+    color: var(--text-dim);
+    font-size: 11.5px;
+    transition: all 0.15s;
+  }
+  .sidebar-item:hover,
+  .sidebar-item.active {
+    background: rgba(15,212,164,0.08);
+    color: var(--text);
+  }
+  .sidebar-item.active { border-left: 2px solid var(--teal); margin-left: 4px; color: var(--teal); }
+  .sidebar-item .icon { font-size: 13px; width: 16px; text-align: center; }
+  .sidebar-item .count {
+    margin-left: auto;
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--muted);
+    background: var(--surface3);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+  .substance-card {
+    margin: 3px 8px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+  }
+  .substance-card:hover { border-color: var(--border2); background: var(--surface3); }
+  .substance-circle {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .substance-name { font-size: 11.5px; color: var(--text); font-weight: 500; }
+  .substance-formula { font-family: var(--mono); font-size: 10px; color: var(--text-dim); }
+
+  /* CANVAS */
+  .canvas-area {
+    flex: 1;
+    position: relative;
+    background: var(--bg);
+    background-image:
+      radial-gradient(circle at 50% 30%, rgba(15,212,164,0.03) 0%, transparent 60%),
+      radial-gradient(1px 1px at 20px 20px, rgba(255,255,255,0.03) 0%, transparent 100%);
+    background-size: auto, 28px 28px;
+    overflow: hidden;
+  }
+  .canvas-node {
+    position: absolute;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 12px;
+    padding: 10px 12px;
+    cursor: grab;
+    min-width: 150px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    transition: border-color 0.2s;
+  }
+  .canvas-node:hover { border-color: var(--border2); }
+  .canvas-node.selected { border-color: var(--teal); box-shadow: 0 0 0 1px var(--teal), 0 4px 20px rgba(15,212,164,0.2); }
+  .canvas-node.active-reaction { border-color: var(--amber); animation: pulse-amber 2s infinite; }
+  .node-header {
+    display: flex; align-items: center; gap: 7px;
+    margin-bottom: 6px;
+  }
+  .node-accent {
+    width: 3px; height: 26px; border-radius: 3px; flex-shrink: 0;
+  }
+  .node-title { font-size: 11.5px; font-weight: 600; color: var(--text); }
+  .node-subtitle { font-family: var(--mono); font-size: 10px; color: var(--text-dim); }
+  .node-value {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text-bright);
+    font-weight: 500;
+    margin-top: 4px;
+  }
+  .node-handle {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    border: 2px solid var(--border2);
+    background: var(--surface3);
+    position: absolute;
+  }
+  .node-handle-right { right: -6px; top: 50%; transform: translateY(-50%); }
+  .node-handle-left  { left: -6px;  top: 50%; transform: translateY(-50%); }
+  .node-handle-bottom { bottom: -6px; left: 50%; transform: translateX(-50%); }
+
+  /* SVG EDGE */
+  .canvas-edges {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+  }
+
+  /* STATUS BAR */
+  .status-bar {
+    height: 32px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+    gap: 20px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    flex-shrink: 0;
+  }
+  .status-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--teal);
+    box-shadow: 0 0 6px var(--teal);
+    animation: blink 1.5s infinite;
+    display: inline-block;
+    margin-right: 4px;
+  }
+  .status-running { color: var(--teal); }
+
+  /* INSPECTOR */
+  .inspector {
+    width: 280px;
+    min-width: 280px;
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .inspector-header {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .inspector-title {
+    font-family: var(--display);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: 0.02em;
+  }
+  .inspector-body { flex: 1; overflow-y: auto; padding: 10px; }
+  .inspector-section {
+    margin-bottom: 14px;
+  }
+  .inspector-section-title {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 7px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--border);
+  }
+  .inspector-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+    font-size: 11.5px;
+  }
+  .inspector-row .label { color: var(--text-dim); }
+  .inspector-row .value { font-family: var(--mono); color: var(--text); font-weight: 500; }
+  .inspector-row .value.danger { color: var(--danger); }
+  .inspector-row .value.teal { color: var(--teal); }
+
+  /* CHART */
+  .mini-chart {
+    height: 70px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 8px;
+    position: relative;
+    overflow: hidden;
+    margin-top: 6px;
+  }
+  .chart-line {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    right: 8px;
+    height: 46px;
+  }
+
+  /* AI PANEL STYLES */
+  .ai-panel {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 10px;
+    margin: 8px;
+  }
+  .ai-panel-header {
+    display: flex; align-items: center; gap: 7px;
+    margin-bottom: 8px;
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+  .ai-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--purple);
+    box-shadow: 0 0 6px var(--purple);
+  }
+  .ai-message {
+    background: var(--surface3);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 8px 10px;
+    font-size: 11px;
+    color: var(--text);
+    line-height: 1.5;
+    margin-bottom: 5px;
+  }
+  .ai-message.user {
+    background: rgba(15,212,164,0.08);
+    border-color: rgba(15,212,164,0.2);
+    color: var(--text);
+  }
+  .ai-input {
+    display: flex;
+    gap: 5px;
+    margin-top: 7px;
+  }
+  .ai-input input {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    padding: 5px 8px;
+    font-size: 10.5px;
+    color: var(--text);
+    outline: none;
+  }
+  .ai-send {
+    width: 28px; height: 28px;
+    background: var(--teal);
+    border: none;
+    border-radius: 6px;
+    color: #000;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+  }
+
+  /* ANIMATIONS */
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  @keyframes pulse-amber { 0%,100%{box-shadow:0 0 0 1px rgba(245,166,35,0.5)} 50%{box-shadow:0 0 0 3px rgba(245,166,35,0.2)} }
+  @keyframes fadeup { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+  .screen-section { animation: fadeup 0.4s ease both; }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    gap: 2px;
+    padding: 6px;
+    background: var(--surface2);
+    border-radius: 8px;
+    margin-bottom: 8px;
+  }
+  .tab {
+    flex: 1; text-align: center;
+    padding: 5px 8px;
+    border-radius: 5px;
+    font-size: 10.5px;
+    color: var(--text-dim);
+    cursor: pointer;
+  }
+  .tab.active { background: var(--surface3); color: var(--text); border: 1px solid var(--border2); }
+
+  /* SAFETY */
+  .safety-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    font-family: var(--display);
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .safety-safe    { background: rgba(34,204,116,0.1); color: var(--success); border: 1px solid rgba(34,204,116,0.3); }
+  .safety-danger  { background: rgba(232,64,64,0.1); color: var(--danger); border: 1px solid rgba(232,64,64,0.4); animation: pulse-red 2s infinite; }
+  @keyframes pulse-red { 0%,100%{box-shadow:0 0 0 0 rgba(232,64,64,0.4)} 50%{box-shadow:0 0 0 6px rgba(232,64,64,0)} }
+
+  .ghs-grid {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 5px;
+    margin-top: 6px;
+  }
+  .ghs-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 4px;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-dim);
+  }
+  .ghs-item .ghs-emoji { font-size: 14px; display: block; margin-bottom: 3px; }
+
+  /* OBSERVABILITY */
+  .obs-stat {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .obs-stat .label { font-size: 11px; color: var(--text-dim); }
+  .obs-stat .value { font-family: var(--mono); font-size: 16px; color: var(--text-bright); font-weight: 600; }
+  .obs-stat .value.green { color: var(--success); }
+  .obs-stat .value.amber { color: var(--amber); }
+
+  .bar-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 50px;
+    margin-top: 8px;
+  }
+  .bar {
+    flex: 1;
+    border-radius: 3px 3px 0 0;
+    background: var(--teal-dim);
+    min-height: 4px;
+  }
+  .bar.amber { background: var(--amber); }
+  .bar.purple { background: var(--purple); }
+  .bar.blue { background: var(--info); }
+
+  /* FOOTER NOTE */
+  .screen-note {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    padding: 10px 14px;
+    background: rgba(15,212,164,0.05);
+    border: 1px solid rgba(15,212,164,0.15);
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+  .screen-note .icon { font-size: 15px; }
+
+  /* DIVIDER */
+  hr.divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 64px 0;
+  }
+
+  /* LOADING STATE */
+  .skeleton {
+    background: linear-gradient(90deg, var(--surface2) 25%, var(--surface3) 50%, var(--surface2) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 4px;
+  }
+  @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+  /* NODE TYPES LEGEND */
+  .legend {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+    padding: 10px 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; color: var(--text-dim);
+  }
+  .legend-dot { width: 10px; height: 10px; border-radius: 3px; }
+
+  /* FULL LAYOUT WRAPPER */
+  .full-layout { display: flex; flex-direction: column; overflow: hidden; }
+
+  /* CONFIDENCE BADGE */
+  .confidence-bar {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-top: 5px;
+    overflow: hidden;
+  }
+  .confidence-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: var(--teal);
+  }
+
+  /* SIMULATION COMPLETE OVERLAY */
+  .complete-overlay {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    background: rgba(10,12,17,0.92);
+    border: 1px solid var(--teal);
+    border-radius: 12px;
+    padding: 16px 22px;
+    text-align: center;
+    backdrop-filter: blur(8px);
+    z-index: 10;
+    box-shadow: 0 0 40px rgba(15,212,164,0.15);
+    animation: fadeup 0.3s ease;
+  }
+  .complete-overlay .check { font-size: 28px; margin-bottom: 6px; }
+  .complete-overlay .label { font-family: var(--display); font-size: 14px; font-weight: 700; color: var(--teal); }
+  .complete-overlay .sub { font-size: 10.5px; color: var(--text-dim); margin-top: 3px; }
+
+  /* TOOLTIP */
+  .node-tooltip {
+    position: absolute;
+    background: var(--surface3);
+    border: 1px solid var(--border2);
+    border-radius: 7px;
+    padding: 7px 10px;
+    font-size: 10.5px;
+    color: var(--text);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    pointer-events: none;
+    z-index: 20;
+  }
+
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="page-header">
+    <div class="badge">SCREEN PREVIEW â€” WHAT YOU WILL BUILD</div>
+    <h1>Chem<span>Lab</span> Engine</h1>
+    <p>These are realistic previews of every major screen your app will have after the 42-day build plan is complete.</p>
+  </div>
+
+
+  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+  <!-- SCREEN 1 â€” MAIN WORKSPACE (IDLE STATE) -->
+  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+  <div class="screen-section">
+    <div class="screen-label">
+      <div class="screen-number">1</div>
+      <div>
+        <div class="screen-title">Main Workspace â€” Empty Canvas</div>
+        <div class="screen-desc">What a user sees when they first open the app. Sidebar on left, empty canvas, inspector on right.</div>
+      </div>
+    </div>
+
+    <div class="chrome">
+      <div class="chrome-bar">
+        <div class="chrome-dots"><span></span><span></span><span></span></div>
+        <div class="chrome-url">localhost:3000 â€” ChemLab Engine</div>
+      </div>
+      <div class="full-layout">
+        <div class="top-bar">
+          <div class="top-bar-logo"><div class="dot"></div> ChemLab Engine</div>
+          <div style="display:flex;gap:8px;margin-left:20px">
+            <div class="top-bar-btn">ðŸ§ª Substance</div>
+            <div class="top-bar-btn">âš—ï¸ Container</div>
+            <div class="top-bar-btn">ðŸŒ¡ Condition</div>
+            <div class="top-bar-btn">ðŸ“¡ Sensor</div>
+            <div class="top-bar-btn">ðŸ“Š Output</div>
+          </div>
+          <div class="top-bar-spacer"></div>
+          <div class="top-bar-btn">ðŸ’¾ Demos</div>
+          <div class="top-bar-btn">âš™ï¸</div>
+        </div>
+        <div class="app-shell">
+          <!-- SIDEBAR -->
+          <div class="sidebar">
+            <div class="sidebar-search">ðŸ” Search substances...</div>
+            <div class="sidebar-section">Library</div>
+            <div class="sidebar-item active"><span class="icon">ðŸ§ª</span> Elements <span class="count">12</span></div>
+            <div class="sidebar-item"><span class="icon">âš—ï¸</span> Compounds <span class="count">28</span></div>
+            <div class="sidebar-item"><span class="icon">ðŸ”„</span> Reactions <span class="count">5</span></div>
+            <div class="sidebar-item"><span class="icon">ðŸ«™</span> Containers</div>
+            <div class="sidebar-item"><span class="icon">ðŸ¤–</span> AI Assistant</div>
+            <div class="sidebar-section" style="margin-top:8px">Acids</div>
+            <div class="substance-card">
+              <div class="substance-circle" style="background:rgba(232,64,64,0.15);color:#e84040">Hâ‚‚</div>
+              <div><div class="substance-name">Sulfuric Acid</div><div class="substance-formula">Hâ‚‚SOâ‚„ Â· 98.08 g/mol</div></div>
+            </div>
+            <div class="substance-card">
+              <div class="substance-circle" style="background:rgba(245,166,35,0.15);color:#f5a623">Hc</div>
+              <div><div class="substance-name">Hydrochloric Acid</div><div class="substance-formula">HCl Â· 36.46 g/mol</div></div>
+            </div>
+            <div class="substance-card">
+              <div class="substance-circle" style="background:rgba(74,158,255,0.15);color:#4a9eff">Na</div>
+              <div><div class="substance-name">Sodium Hydroxide</div><div class="substance-formula">NaOH Â· 39.997 g/mol</div></div>
+            </div>
+          </div>
+
+          <!-- CANVAS -->
+          <div class="canvas-area" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px">
+            <div style="font-size:36px;opacity:0.12">âš—ï¸</div>
+            <div style="font-family:var(--display);font-size:16px;font-weight:700;color:var(--text-dim)">Drag a substance to begin</div>
+            <div style="font-size:11px;color:var(--muted)">Pick any substance from the sidebar and drop it here</div>
+          </div>
+
+          <!-- INSPECTOR -->
+          <div class="inspector">
+            <div class="inspector-header">
+              <div class="inspector-title">Inspector</div>
+              <div class="tag tag-teal">IDLE</div>
+            </div>
+            <div class="inspector-body" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;opacity:0.4">
+              <div style="font-size:28px">ðŸ”¬</div>
+              <div style="font-size:11px;color:var(--text-dim);line-height:1.5">Select a node on the canvas to inspect its properties</div>
+            </div>
+          </div>
+        </div>
+        <div class="status-bar">
+          <span>Temp: 298 K</span>
+          <span>Pressure: 1.00 atm</span>
+          <span>Time: 00:00.0</span>
+          <span style="margin-left:auto" class="muted">Phase 0: IDLE</span>
+        </div>
+      </div>
+    </div>
+    <div class="screen-note">
+      <span class="icon">ðŸ’¡</span>
+      <span><strong>What this does:</strong> The user opens the app and sees a clean workspace. The left sidebar shows all available substances grouped by type (acids, bases, salts). The canvas is empty and waits for the user to drag substances onto it. Nothing happens until the user starts building an experiment.</span>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+  <!-- SCREEN 2 â€” EXPERIMENT RUNNING -->
+  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+  <div class="screen-section">
+    <div class="screen-label">
+      <div class="screen-number">2</div>
+      <div>
+        <div class="screen-title">Simulation Running â€” Live Reaction</div>
+        <div class="screen-desc">User has placed nodes and pressed Run. The simulation is actively computing and the chart is moving in real time.</div>
+      </div>
+    </div>
+
+    <div class="chrome">
+      <div class="chrome-bar">
+        <div class="chrome-dots"><span></span><span></span><span></span></div>
+        <div class="chrome-url">localhost:3000 â€” ChemLab Engine</div>
+      </div>
+      <div class="full-layout">
+        <div class="top-bar">
+          <div class="top-bar-logo"><div class="dot"></div> ChemLab Engine</div>
+          <div style="display:flex;gap:8px;margin-left:20px">
+            <div class="top-bar-btn">ðŸ§ª Substance</div>
+            <div class="top-bar-btn">âš—ï¸ Container</div>
+            <div class="top-bar-btn">ðŸŒ¡ Condition</div>
+          </div>
+          <div class="top-bar-spacer"></div>
+          <div class="top-bar-btn active">â¸ Pause</div>
+          <div class="top-bar-btn">â†º Reset</div>
+        </div>
+        <div class="app-shell">
+          <!-- SIDEBAR -->
+          <div class="sidebar">
+            <div class="sidebar-search">ðŸ” Search substances...</div>
+            <div class="sidebar-section">Active Experiment</div>
+            <div class="sidebar-item"><span class="icon">ðŸ§ª</span> Hâ‚‚SOâ‚„ (1.0 mol/L)</div>
+            <div class="sidebar-item"><span class="icon">ðŸ§ª</span> NaOH (1.0 mol/L)</div>
+            <div class="sidebar-item"><span class="icon">âš—ï¸</span> Beaker (1.0 L)</div>
+            <div class="sidebar-section" style="margin-top:8px">Reactions Found</div>
+            <div style="margin:4px 8px;background:rgba(15,212,164,0.08);border:1px solid rgba(15,212,164,0.2);border-radius:7px;padding:8px 10px;">
+              <div style="font-size:11px;color:var(--teal);font-weight:600">Acid-Base Neutralization</div>
+              <div style="font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-top:2px">Hâ‚‚SOâ‚„ + 2NaOH â†’</div>
+              <div style="font-family:var(--mono);font-size:10px;color:var(--text-dim)">Naâ‚‚SOâ‚„ + 2Hâ‚‚O</div>
+              <div style="margin-top:5px;display:flex;gap:5px"><span class="tag tag-teal">Î”H = -114 kJ</span></div>
+            </div>
+          </div>
+
+          <!-- CANVAS with nodes and edges -->
+          <div class="canvas-area">
+            <svg class="canvas-edges" xmlns="http://www.w3.org/2000/svg">
+              <!-- Edge H2SO4 â†’ Beaker -->
+              <path d="M 242 148 C 310 148 310 210 360 210" fill="none" stroke="rgba(15,212,164,0.4)" stroke-width="1.5" stroke-dasharray="5 3">
+                <animate attributeName="stroke-dashoffset" from="0" to="-20" dur="1s" repeatCount="indefinite"/>
+              </path>
+              <!-- Edge NaOH â†’ Beaker -->
+              <path d="M 242 288 C 310 288 310 240 360 225" fill="none" stroke="rgba(74,158,255,0.4)" stroke-width="1.5" stroke-dasharray="5 3">
+                <animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/>
+              </path>
+              <!-- Edge Beaker â†’ Output -->
+              <path d="M 540 220 C 590 220 590 300 620 300" fill="none" stroke="rgba(34,204,116,0.4)" stroke-width="1.5"/>
+            </svg>
+
+            <!-- H2SO4 Node -->
+            <div class="canvas-node" style="top:118px;left:60px">
+              <div class="node-handle node-handle-right" style="background:var(--danger)"></div>
+              <div class="node-header">
+                <div class="node-accent" style="background:var(--danger)"></div>
+                <div><div class="node-title">Sulfuric Acid</div><div class="node-subtitle">Hâ‚‚SOâ‚„</div></div>
+              </div>
+              <div class="node-value">1.00 mol/L</div>
+              <div style="margin-top:4px"><span class="tag tag-red">Acid</span></div>
+            </div>
+
+            <!-- NaOH Node -->
+            <div class="canvas-node" style="top:260px;left:60px">
+              <div class="node-handle node-handle-right" style="background:var(--info)"></div>
+              <div class="node-header">
+                <div class="node-accent" style="background:var(--info)"></div>
+                <div><div class="node-title">Sodium Hydroxide</div><div class="node-subtitle">NaOH</div></div>
+              </div>
+              <div class="node-value">1.00 mol/L</div>
+              <div style="margin-top:4px"><span class="tag tag-blue">Base</span></div>
+            </div>
+
+            <!-- Beaker / Container Node (SELECTED + ACTIVE) -->
+            <div class="canvas-node selected active-reaction" style="top:170px;left:360px;min-width:175px">
+              <div class="node-handle node-handle-left"></div>
+              <div class="node-handle node-handle-right" style="background:var(--teal)"></div>
+              <div class="node-header">
+                <div class="node-accent" style="background:var(--info)"></div>
+                <div><div class="node-title">Beaker (1.0 L)</div><div class="node-subtitle">298 K Â· 1.00 atm</div></div>
+              </div>
+              <div style="margin-top:5px;display:flex;gap:4px">
+                <div style="width:8px;height:8px;border-radius:50%;background:var(--danger)"></div>
+                <div style="width:8px;height:8px;border-radius:50%;background:var(--info)"></div>
+              </div>
+              <div style="margin-top:5px;height:4px;background:var(--border);border-radius:2px;overflow:hidden">
+                <div style="width:62%;height:100%;background:linear-gradient(90deg,var(--teal),var(--info));border-radius:2px;animation:progress 2s linear infinite alternate"></div>
+              </div>
+              <div style="margin-top:4px;font-family:var(--mono);font-size:9px;color:var(--teal)">âŸ³ Reacting...</div>
+            </div>
+
+            <!-- Output Node -->
+            <div class="canvas-node" style="top:260px;left:620px">
+              <div class="node-handle node-handle-left"></div>
+              <div class="node-header">
+                <div class="node-accent" style="background:var(--success)"></div>
+                <div><div class="node-title">Products</div><div class="node-subtitle">Output</div></div>
+              </div>
+              <div style="font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-top:4px">Naâ‚‚SOâ‚„ â†’ 0.41 mol/L</div>
+              <div style="font-family:var(--mono);font-size:10px;color:var(--text-dim)">Hâ‚‚O â†’ 0.82 mol/L</div>
+            </div>
+
+            <!-- RUNNING STATUS -->
+            <div style="position:absolute;bottom:14px;left:50%;transform:translateX(-50%);display:flex;gap:8px;align-items:center">
+              <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:6px 14px;display:flex;align-items:center;gap:8px">
+                <span class="status-dot"></span>
+                <span class="status-running" style="font-family:var(--mono);font-size:10px;font-weight:600">RUNNING</span>
+                <span style="font-family:var(--mono);font-size:10px;color:var(--text-dim)">t = 23.4 s</span>
+                <span style="width:1px;height:12px;background:var(--border)"></span>
+                <span style="font-family:var(--mono);font-size:10px;color:var(--text-dim)">1Ã—</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- INSPECTOR â€” Beaker selected -->
+          <div class="inspector">
+            <div class="inspector-header">
+              <div class="inspector-title">Beaker Inspector</div>
+              <div class="tag tag-teal">REACTING</div>
+            </div>
+            <div class="inspector-body">
+              <div class="tabs">
+                <div class="tab active">Output</div>
+                <div class="tab">Safety</div>
+                <div class="tab">Chart</div>
+              </div>
+              <div class="inspector-section">
+                <div class="inspector-section-title">Conditions</div>
+                <div class="inspector-row"><span class="label">Temperature</span><span class="value teal">310.4 K</span></div>
+                <div class="inspector-row"><span class="label">Pressure</span><span class="value">1.02 atm</span></div>
+                <div class="inspector-row"><span class="label">Volume</span><span class="value">1.00 L</span></div>
+                <div class="inspector-row"><span class="label">Reaction Type</span><span class="value">Acid-Base</span></div>
+              </div>
+              <div class="inspector-section">
+                <div class="inspector-section-title">Concentrations</div>
+                <div class="inspector-row"><span class="label">Hâ‚‚SOâ‚„</span><span class="value" style="color:var(--danger)">â†“ 0.38 mol/L</span></div>
+                <div class="inspector-row"><span class="label">NaOH</span><span class="value" style="color:var(--info)">â†“ 0.24 mol/L</span></div>
+                <div class="inspector-row"><span class="label">Naâ‚‚SOâ‚„</span><span class="value" style="color:var(--teal)">â†‘ 0.41 mol/L</span></div>
+                <div class="inspector-row"><span class="label">Hâ‚‚O</span><span class="value" style="color:var(--teal)">â†‘ 0.82 mol/L</span></div>
+              </div>
+              <div class="inspector-section">
+                <div class="inspector-section-title">Thermodynamics</div>
+                <div class="inspector-row"><span class="label">Î”H</span><span class="value">-114.0 kJ/mol</span></div>
+                <div class="inspector-row"><span class="label">Î”G</span><span class="value">-118.9 kJ/mol</span></div>
+                <div class="inspector-row"><span class="label">K eq</span><span class="value teal">1.2 Ã— 10Â²â°</span></div>
+              </div>
+              <div class="mini-chart">
+                <svg class="chart-line" viewBox="0 0 260 50" preserveAspectRatio="none">
+                  <polyline points="0,45 20,42 40,37 60,31 80,26 100,20 120,15 140,12 160,10 180,9 200,9 220,9 240,9 260,9" fill="none" stroke="rgba(232,64,64,0.7)" stroke-width="1.5"/>
+                  <polyline points="0,45 20,43 40,40 60,36 80,31 100,26 120,20 140,15 160,12 180,10 200,10 220,9 240,9 260,9" fill="none" stroke="rgba(74,158,255,0.7)" stroke-width="1.5"/>
+                  <polyline points="0,50 20,49 40,46 60,41 80,36 100,30 120,24 140,19 160,15 180,13 200,12 220,12 240,12 260,12" fill="none" stroke="rgba(15,212,164,0.9)" stroke-width="1.5"/>
+                </svg>
+                <div style="position:absolute;bottom:4px;right:6px;font-family:var(--mono);font-size:8px;color:var(--muted)">0 â†’ 60 s</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="status-bar">
+          <span class="status-running"><span class="status-dot"></span> RUNNING</span>
+          <span>Temp: 310.4 K</span>
+          <span>Pressure: 1.02 atm</span>
+          <span>Time: 00:23.4</span>
+          <span style="margin-left:auto">1Ã— speed</span>
+        </div>
+      </div>
+    </div>
+    <div class="screen-note">
+      <span class="icon">ðŸ’¡</span>
+      <span><strong>What this does:</strong> The user has dragged Hâ‚‚SOâ‚„ and NaOH onto the canvas and pressed Run. The simulation is calculating the ODE equations in real time. Concentration values update live in the Inspector. The beaker node pulses to show the reaction is happening. The small chart in the inspector shows all species changing over time.</span>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+  <!-- SCREEN 3 â€” SIMULATION COMPLETE + RESULTS -->
+  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+  <div class="screen-section">
+    <div class="screen-label">
+      <div class="screen-number">3</div>
+      <div>
+        <div class="screen-title">Simulation Complete â€” Full Results</div>
+        <div class="screen-desc">Reaction has finished. The user sees the full output panel with thermodynamics, yield, and the concentration chart.</div>
+      </div>
+    </div>
+
+    <div class="chrome">
+      <div class="chrome-bar">
+        <div class="chrome-dots"><span></span><span></span><span></span></div>
+        <div class="chrome-url">localhost:3000 â€” ChemLab Engine</div>
+      </div>
+      <div class="full-layout">
+        <div class="top-bar">
+          <div class="top-bar-logo"><div class="dot"></div> ChemLab Engine</div>
+          <div class="top-bar-spacer"></div>
+          <div class="top-bar-btn primary">â–¶ Run Again</div>
+          <div class="top-bar-btn">â†º Reset</div>
+          <div class="top-bar-btn">ðŸ’¾ Save</div>
+          <div class="top-bar-btn">ðŸ“¤ Export</div>
+        </div>
+        <div class="app-shell">
+          <!-- SIDEBAR -->
+          <div class="sidebar">
+            <div class="sidebar-search">ðŸ” Search...</div>
+            <div class="sidebar-section">Saved Experiments</div>
+            <div class="substance-card" style="border-color:rgba(15,212,164,0.3);background:rgba(15,212,164,0.05)">
+              <div style="font-size:20px">âœ…</div>
+              <div>
+                <div class="substance-name" style="color:var(--teal)">Neutralization Run #1</div>
+                <div class="substance-formula">Just completed Â· 60s</div>
+              </div>
+            </div>
+            <div class="substance-card">
+              <div style="font-size:20px">ðŸ•</div>
+              <div>
+                <div class="substance-name">Zinc + Acid Run</div>
+                <div class="substance-formula">Yesterday Â· 45s</div>
+              </div>
+            </div>
+            <div class="sidebar-section" style="margin-top:8px">Products Formed</div>
+            <div class="sidebar-item"><span class="icon">ðŸ§‚</span> Naâ‚‚SOâ‚„ Â· 0.50 mol/L <span class="count">âœ“</span></div>
+            <div class="sidebar-item"><span class="icon">ðŸ’§</span> Hâ‚‚O Â· 1.00 mol/L <span class="count">âœ“</span></div>
+          </div>
+
+          <!-- CANVAS â€” complete state -->
+          <div class="canvas-area">
+            <svg class="canvas-edges" xmlns="http://www.w3.org/2000/svg">
+              <path d="M 242 148 C 310 148 310 210 360 210" fill="none" stroke="rgba(15,212,164,0.25)" stroke-width="1.5"/>
+              <path d="M 242 288 C 310 288 310 240 360 225" fill="none" stroke="rgba(15,212,164,0.25)" stroke-width="1.5"/>
+              <path d="M 540 220 C 590 220 590 300 620 300" fill="none" stroke="rgba(34,204,116,0.5)" stroke-width="1.5"/>
+            </svg>
+
+            <div class="canvas-node" style="top:118px;left:60px;opacity:0.6">
+              <div class="node-header"><div class="node-accent" style="background:var(--danger)"></div><div><div class="node-title">Sulfuric Acid</div><div class="node-subtitle">Hâ‚‚SOâ‚„</div></div></div>
+              <div class="node-value" style="color:var(--text-dim)">0.00 mol/L</div>
+              <div style="margin-top:4px"><span class="tag tag-red">Consumed</span></div>
+            </div>
+
+            <div class="canvas-node" style="top:260px;left:60px;opacity:0.6">
+              <div class="node-header"><div class="node-accent" style="background:var(--info)"></div><div><div class="node-title">Sodium Hydroxide</div><div class="node-subtitle">NaOH</div></div></div>
+              <div class="node-value" style="color:var(--text-dim)">0.00 mol/L</div>
+              <div style="margin-top:4px"><span class="tag tag-blue">Consumed</span></div>
+            </div>
+
+            <div class="canvas-node" style="top:170px;left:360px;min-width:175px;border-color:var(--success)">
+              <div class="node-header"><div class="node-accent" style="background:var(--success)"></div><div><div class="node-title">Beaker (1.0 L)</div><div class="node-subtitle">Reaction Complete</div></div></div>
+              <div style="display:flex;gap:4px;margin-top:5px">
+                <div style="width:8px;height:8px;border-radius:50%;background:var(--success)"></div>
+                <div style="width:8px;height:8px;border-radius:50%;background:var(--teal)"></div>
+              </div>
+              <div style="margin-top:4px"><span class="tag tag-green">COMPLETE</span></div>
+            </div>
+
+            <!-- COMPLETION OVERLAY -->
+            <div class="complete-overlay" style="left:55%;top:45%">
+              <div class="check">âœ…</div>
+              <div class="label">Simulation Complete</div>
+              <div class="sub">60.0 s Â· 100% yield Â· No hazards</div>
+            </div>
+          </div>
+
+          <!-- INSPECTOR â€” OUTPUT TAB -->
+          <div class="inspector">
+            <div class="inspector-header">
+              <div class="inspector-title">Results</div>
+              <div class="tag tag-green">COMPLETE</div>
+            </div>
+            <div class="inspector-body">
+              <div class="tabs">
+                <div class="tab active">Output</div>
+                <div class="tab">Chart</div>
+                <div class="tab">Safety</div>
+              </div>
+              <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:8px;text-align:center">
+                <div style="font-family:var(--mono);font-size:10.5px;color:var(--text-dim)">Hâ‚‚SOâ‚„ + 2NaOH â†’</div>
+                <div style="font-family:var(--mono);font-size:12px;color:var(--text-bright);font-weight:600;margin-top:3px">Naâ‚‚SOâ‚„ + 2Hâ‚‚O</div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-bottom:10px">
+                <div style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:8px;text-align:center">
+                  <div style="font-family:var(--mono);font-size:11px;color:var(--text)">-114.0</div>
+                  <div style="font-size:9px;color:var(--muted)">Î”H kJ/mol</div>
+                </div>
+                <div style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:8px;text-align:center">
+                  <div style="font-family:var(--mono);font-size:11px;color:var(--text)">-118.9</div>
+                  <div style="font-size:9px;color:var(--muted)">Î”G kJ/mol</div>
+                </div>
+                <div style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:8px;text-align:center">
+                  <div style="font-family:var(--mono);font-size:11px;color:var(--teal)">100%</div>
+                  <div style="font-size:9px;color:var(--muted)">Yield</div>
+                </div>
+              </div>
+              <div class="inspector-section">
+                <div class="inspector-section-title">Final Products</div>
+                <div class="inspector-row"><span class="label">Naâ‚‚SOâ‚„</span><span class="value teal">0.50 mol/L</span></div>
+                <div class="inspector-row"><span class="label">Hâ‚‚O</span><span class="value teal">1.00 mol/L</span></div>
+              </div>
+              <div class="inspector-section">
+                <div class="inspector-section-title">K equilibrium</div>
+                <div style="font-family:var(--mono);font-size:13px;color:var(--teal);font-weight:600">1.2 Ã— 10Â²â°</div>
+                <div style="display:inline-flex;align-items:center;gap:5px;margin-top:5px;background:rgba(34,204,116,0.1);border:1px solid rgba(34,204,116,0.25);border-radius:5px;padding:4px 8px">
+                  <span style="font-size:9px;color:var(--success)">âœ“ SPONTANEOUS</span>
+                </div>
+              </div>
+              <div style="margin-top:10px;display:flex;gap:6px">
+                <div style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-size:10.5px;text-align:center;color:var(--text-dim);cursor:pointer">ðŸ“Š Full Chart</div>
+                <div style="flex:1;background:var(--teal-dark);border:1px solid var(--teal-dim);border-radius:6px;padding:7px 10px;font-size:10.5px;text-align:center;color:var(--teal);cursor:pointer">ðŸ“¤ Export JSON</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="status-bar">
+          <span style="color:var(--success)">âœ“ COMPLETE</span>
+          <span>Temp: 312.1 K</span>
+          <span>Pressure: 1.00 atm</span>
+          <span>Time: 60.0 s</span>
+          <span style="margin-left:auto">Yield: 100%</span>
+        </div>
+      </div>
+    </div>
+    <div class="screen-note">
+      <span class="icon">ðŸ’¡</span>
+      <span><strong>What this does:</strong> The simulation is finished. The reactant nodes are dimmed (substances consumed). A green completion overlay appears on canvas. The Inspector now shows the final results â€” product concentrations, thermodynamics numbers, yield percentage. The user can Export as JSON or view the full chart.</span>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+  <!-- SCREEN 4 â€” SAFETY PANEL + DANGER STATE -->
+  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+  <div class="screen-section">
+    <div class="screen-label">
+      <div class="screen-number">4</div>
+      <div>
+        <div class="screen-title">Safety Panel â€” Hazard Detected</div>
+        <div class="screen-desc">When the simulation detects a dangerous combination (e.g. Zn + Hâ‚‚SOâ‚„ producing Hâ‚‚ gas under pressure), the safety panel fires automatically.</div>
+      </div>
+    </div>
+
+    <div class="chrome">
+      <div class="chrome-bar">
+        <div class="chrome-dots"><span></span><span></span><span></span></div>
+        <div class="chrome-url">localhost:3000 â€” ChemLab Engine</div>
+      </div>
+      <div class="full-layout">
+        <div class="top-bar" style="border-color:rgba(232,64,64,0.4);background:rgba(232,64,64,0.04)">
+          <div class="top-bar-logo"><div class="dot" style="background:var(--danger);box-shadow:0 0 8px var(--danger)"></div> ChemLab Engine</div>
+          <div class="top-bar-spacer"></div>
+          <div class="top-bar-btn" style="background:rgba(232,64,64,0.15);border-color:var(--danger);color:var(--danger)">âš  DANGER DETECTED</div>
+          <div class="top-bar-btn" style="background:var(--danger);color:#fff;border-color:var(--danger)">â¹ STOP</div>
+        </div>
+        <div class="app-shell">
+          <!-- SIDEBAR -->
+          <div class="sidebar">
+            <div class="sidebar-search">ðŸ” Search...</div>
+            <div class="sidebar-section">Active</div>
+            <div class="sidebar-item active"><span class="icon">âš ï¸</span> Zn + Hâ‚‚SOâ‚„ <span class="count" style="color:var(--danger)">!</span></div>
+            <div style="margin:4px 8px;background:rgba(232,64,64,0.08);border:1px solid rgba(232,64,64,0.3);border-radius:7px;padding:8px 10px;">
+              <div style="font-size:11px;color:var(--danger);font-weight:600">Hâ‚‚ Gas Accumulation</div>
+              <div style="font-size:10px;color:var(--text-dim);margin-top:3px;line-height:1.4">Hydrogen gas is building up. Explosion risk detected at current pressure.</div>
+            </div>
+          </div>
+
+          <!-- CANVAS -->
+          <div class="canvas-area" style="background:rgba(232,64,64,0.02)">
+            <svg class="canvas-edges" xmlns="http://www.w3.org/2000/svg">
+              <path d="M 220 160 C 290 160 290 210 340 210" fill="none" stroke="rgba(232,64,64,0.5)" stroke-width="1.5" stroke-dasharray="5 3">
+                <animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.5s" repeatCount="indefinite"/>
+              </path>
+              <path d="M 220 270 C 290 270 290 240 340 230" fill="none" stroke="rgba(245,166,35,0.5)" stroke-width="1.5" stroke-dasharray="5 3">
+                <animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.5s" repeatCount="indefinite"/>
+              </path>
+            </svg>
+            <div class="canvas-node" style="top:130px;left:50px">
+              <div class="node-header"><div class="node-accent" style="background:var(--amber)"></div><div><div class="node-title">Zinc</div><div class="node-subtitle">Zn</div></div></div>
+              <div class="node-value">0.50 mol/L</div>
+            </div>
+            <div class="canvas-node" style="top:250px;left:50px">
+              <div class="node-header"><div class="node-accent" style="background:var(--danger)"></div><div><div class="node-title">Sulfuric Acid</div><div class="node-subtitle">Hâ‚‚SOâ‚„</div></div></div>
+              <div class="node-value">1.00 mol/L</div>
+            </div>
+            <div class="canvas-node active-reaction" style="top:175px;left:340px;border-color:var(--danger);box-shadow:0 0 0 2px rgba(232,64,64,0.3),0 0 30px rgba(232,64,64,0.15)">
+              <div class="node-header"><div class="node-accent" style="background:var(--danger)"></div><div><div class="node-title">Beaker (1.0 L)</div><div class="node-subtitle">PRESSURE HIGH</div></div></div>
+              <div style="font-family:var(--mono);font-size:10px;color:var(--danger);margin-top:4px">Hâ‚‚ â†‘ 0.45 mol/L</div>
+              <div style="font-family:var(--mono);font-size:10px;color:var(--danger)">Pressure: 2.1 atm âš </div>
+            </div>
+            <!-- Full screen red flash border -->
+            <div style="position:absolute;inset:0;border:2px solid rgba(232,64,64,0.4);pointer-events:none;animation:pulse-red 2s infinite;border-radius:4px"></div>
+            <!-- Danger banner -->
+            <div style="position:absolute;top:12px;left:50%;transform:translateX(-50%);background:rgba(232,64,64,0.15);border:1px solid rgba(232,64,64,0.6);border-radius:8px;padding:7px 18px;display:flex;align-items:center;gap:8px;backdrop-filter:blur(6px)">
+              <span style="font-size:14px">ðŸš¨</span>
+              <span style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--danger)">EXPLOSION RISK â€” Hâ‚‚ PRESSURE AT 2.1 ATM</span>
+            </div>
+          </div>
+
+          <!-- INSPECTOR â€” SAFETY TAB ACTIVE -->
+          <div class="inspector">
+            <div class="inspector-header">
+              <div class="inspector-title">Safety Panel</div>
+              <div class="tag tag-red" style="animation:pulse-red 1.5s infinite">DANGER</div>
+            </div>
+            <div class="inspector-body">
+              <div class="safety-badge safety-danger">âš  DANGER</div>
+              <div class="ghs-grid">
+                <div class="ghs-item"><span class="ghs-emoji">ðŸ’¥</span>H290</div>
+                <div class="ghs-item"><span class="ghs-emoji">â˜ ï¸</span>H302</div>
+                <div class="ghs-item"><span class="ghs-emoji">ðŸ”¥</span>H260</div>
+              </div>
+              <div style="margin-top:10px">
+                <div class="inspector-section-title">Active Hazards</div>
+                <div style="background:rgba(232,64,64,0.08);border:1px solid rgba(232,64,64,0.3);border-radius:7px;padding:8px 10px;margin-bottom:5px">
+                  <div style="font-size:11px;font-weight:600;color:var(--danger)">ðŸš¨ Hâ‚‚ Gas Pressure</div>
+                  <div style="font-size:10.5px;color:var(--text-dim);margin-top:3px;line-height:1.4">Hydrogen gas accumulating at 2.1 atm. Threshold is 2.0 atm. Explosion risk.</div>
+                </div>
+                <div style="background:rgba(245,166,35,0.08);border:1px solid rgba(245,166,35,0.25);border-radius:7px;padding:8px 10px">
+                  <div style="font-size:11px;font-weight:600;color:var(--amber)">âš  High Temperature</div>
+                  <div style="font-size:10.5px;color:var(--text-dim);margin-top:3px">Temp rising: 344 K (+46 K above start)</div>
+                </div>
+              </div>
+              <div style="margin-top:10px">
+                <div class="inspector-section-title">Emergency Actions</div>
+                <div style="display:flex;flex-direction:column;gap:5px">
+                  <div style="background:rgba(232,64,64,0.15);border:1px solid var(--danger);border-radius:6px;padding:8px;text-align:center;font-size:11px;color:var(--danger);font-weight:600;cursor:pointer">â¹ STOP REACTION</div>
+                  <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:6px;padding:7px;text-align:center;font-size:11px;color:var(--text-dim);cursor:pointer">ðŸŒ¬ Ventilate Container</div>
+                  <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:6px;padding:7px;text-align:center;font-size:11px;color:var(--text-dim);cursor:pointer">â„ï¸ Add Cooling</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="status-bar" style="border-color:rgba(232,64,64,0.3)">
+          <span style="color:var(--danger)">ðŸš¨ DANGER â€” Hâ‚‚ PRESSURE</span>
+          <span>Temp: 344 K</span>
+          <span style="color:var(--danger)">Pressure: 2.1 atm âš </span>
+          <span style="margin-left:auto">Simulation paused automatically</span>
+        </div>
+      </div>
+    </div>
+    <div class="screen-note">
+      <span class="icon">ðŸ’¡</span>
+      <span><strong>What this does:</strong> When Zn + Hâ‚‚SOâ‚„ runs, hydrogen gas builds up. The simulation engine detects the pressure exceeding 2.0 atm and fires a DANGER event automatically. The entire UI shifts to red, a warning banner appears on the canvas, and the Safety Panel shows emergency action buttons. The user can stop the reaction, ventilate, or add cooling â€” just like a real lab.</span>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+  <!-- SCREEN 5 â€” AI ASSISTANT CHAT -->
+  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+  <div class="screen-section">
+    <div class="screen-label">
+      <div class="screen-number">5</div>
+      <div>
+        <div class="screen-title">AI Assistant Chat Panel</div>
+        <div class="screen-desc">The AI panel slides in from the right. The user can ask questions about the reaction. The AI responds with explanation, confidence score, and mechanism.</div>
+      </div>
+    </div>
+
+    <div class="chrome">
+      <div class="chrome-bar">
+        <div class="chrome-dots"><span></span><span></span><span></span></div>
+        <div class="chrome-url">localhost:3000 â€” ChemLab Engine</div>
+      </div>
+      <div class="full-layout">
+        <div class="top-bar">
+          <div class="top-bar-logo"><div class="dot"></div> ChemLab Engine</div>
+          <div class="top-bar-spacer"></div>
+          <div class="top-bar-btn active">ðŸ¤– AI Assistant</div>
+          <div class="top-bar-btn">ðŸ’¾ Save</div>
+        </div>
+        <div class="app-shell">
+          <!-- SIDEBAR -->
+          <div class="sidebar">
+            <div class="sidebar-search">ðŸ” Search...</div>
+            <div class="sidebar-section">AI Features</div>
+            <div class="sidebar-item active"><span class="icon">ðŸ¤–</span> AI Assistant</div>
+            <div class="sidebar-item"><span class="icon">ðŸ”®</span> Predict Reaction</div>
+            <div class="sidebar-item"><span class="icon">âš—ï¸</span> Suggest Experiment</div>
+            <div class="sidebar-item"><span class="icon">ðŸ›¡ï¸</span> Safety Analysis</div>
+          </div>
+
+          <!-- CANVAS (smaller, background) -->
+          <div class="canvas-area" style="opacity:0.5">
+            <div class="canvas-node" style="top:130px;left:60px">
+              <div class="node-header"><div class="node-accent" style="background:var(--danger)"></div><div><div class="node-title">Hâ‚‚SOâ‚„</div><div class="node-subtitle">Sulfuric Acid</div></div></div>
+            </div>
+            <div class="canvas-node" style="top:130px;left:320px">
+              <div class="node-header"><div class="node-accent" style="background:var(--info)"></div><div><div class="node-title">Beaker</div><div class="node-subtitle">1.0 L</div></div></div>
+            </div>
+          </div>
+
+          <!-- AI PANEL (slide-in panel) -->
+          <div style="width:340px;min-width:340px;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;">
+            <div style="padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+              <div style="display:flex;align-items:center;gap:8px">
+                <div class="ai-dot"></div>
+                <span style="font-family:var(--display);font-size:13px;font-weight:700;color:var(--text)">AI Assistant</span>
+              </div>
+              <div style="display:flex;gap:6px;align-items:center">
+                <span class="tag tag-green" style="font-size:9px">â—  ONLINE</span>
+                <span style="color:var(--muted);cursor:pointer;font-size:14px">Ã—</span>
+              </div>
+            </div>
+            <div style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px">
+              <!-- Suggested chips -->
+              <div style="font-size:10px;color:var(--muted);text-align:center;margin-bottom:4px">Ask me about your experiment</div>
+              <div style="display:flex;gap:5px;flex-wrap:wrap;justify-content:center;margin-bottom:8px">
+                <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:20px;padding:4px 10px;font-size:10px;color:var(--text-dim);cursor:pointer">Why did this release heat?</div>
+                <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:20px;padding:4px 10px;font-size:10px;color:var(--text-dim);cursor:pointer">Safe at higher temp?</div>
+                <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:20px;padding:4px 10px;font-size:10px;color:var(--text-dim);cursor:pointer">What is the mechanism?</div>
+              </div>
+
+              <!-- User message -->
+              <div style="align-self:flex-end;max-width:80%">
+                <div class="ai-message user">Why did this reaction release so much heat?</div>
+              </div>
+
+              <!-- AI response -->
+              <div style="align-self:flex-start;max-width:90%">
+                <div class="ai-message">
+                  <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+                    <div class="ai-dot"></div>
+                    <span style="font-size:10px;color:var(--text-dim)">AI Response</span>
+                    <div class="tag tag-green" style="margin-left:auto;font-size:9px">HIGH confidence</div>
+                  </div>
+                  This is an <strong style="color:var(--teal)">exothermic acid-base neutralization</strong>. The Hâº ions from Hâ‚‚SOâ‚„ combine with OHâ» ions from NaOH, forming water. This bond formation releases energy â€” 114 kJ per mole.
+                  <div style="margin-top:6px;font-family:var(--mono);font-size:10px;color:var(--text-dim)">Hâº + OHâ» â†’ Hâ‚‚O + energy</div>
+                  <div class="confidence-bar" style="margin-top:8px"><div class="confidence-fill" style="width:88%"></div></div>
+                  <div style="font-size:9px;color:var(--muted);margin-top:3px">Confidence: 88% Â· Cached from 2 previous runs</div>
+                </div>
+              </div>
+
+              <!-- User message 2 -->
+              <div style="align-self:flex-end;max-width:80%">
+                <div class="ai-message user">Is it safe to run at 350K?</div>
+              </div>
+
+              <!-- AI response 2 -->
+              <div style="align-self:flex-start;max-width:90%">
+                <div class="ai-message" style="border-color:rgba(245,166,35,0.3)">
+                  <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+                    <div class="ai-dot" style="background:var(--amber)"></div>
+                    <span style="font-size:10px;color:var(--text-dim)">AI Response</span>
+                    <div class="tag tag-amber" style="margin-left:auto;font-size:9px">CAUTION</div>
+                  </div>
+                  At 350K, the reaction rate increases significantly. The Î”G becomes less negative but remains spontaneous. Main risk: <strong style="color:var(--amber)">steam formation</strong> and increased pressure from water vapor. Keep the container sealed rating in mind.
+                </div>
+              </div>
+            </div>
+            <div style="padding:10px;border-top:1px solid var(--border)">
+              <div class="ai-input">
+                <input type="text" placeholder="Ask about this reaction..." />
+                <button class="ai-send">â†’</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="status-bar">
+          <span>AI: 2 requests Â· Cache: 1 hit</span>
+          <span style="margin-left:auto">Rate limit: 8 / 10 remaining</span>
+        </div>
+      </div>
+    </div>
+    <div class="screen-note">
+      <span class="icon">ðŸ’¡</span>
+      <span><strong>What this does:</strong> The user opens the AI panel and types a question. The AI explains the reaction in plain English, shows a confidence score, and warns about risks at higher temperatures. Suggested question chips help beginners get started. The AI is a helper â€” it never runs the simulation itself.</span>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+  <!-- SCREEN 6 â€” AI OBSERVABILITY DASHBOARD -->
+  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+  <div class="screen-section">
+    <div class="screen-label">
+      <div class="screen-number">6</div>
+      <div>
+        <div class="screen-title">AI Health Dashboard (ObservabilityPanel)</div>
+        <div class="screen-desc">Accessed via Settings â†’ AI Diagnostics. Shows live stats of every AI call made â€” cache hits, response times, error rates. For power users and debugging.</div>
+      </div>
+    </div>
+
+    <div class="chrome">
+      <div class="chrome-bar">
+        <div class="chrome-dots"><span></span><span></span><span></span></div>
+        <div class="chrome-url">localhost:3000 â€” AI Diagnostics</div>
+      </div>
+      <div class="full-layout">
+        <div class="top-bar">
+          <div class="top-bar-logo"><div class="dot"></div> ChemLab Engine</div>
+          <div class="top-bar-spacer"></div>
+          <div class="top-bar-btn active">âš™ï¸ AI Diagnostics</div>
+        </div>
+        <div class="app-shell">
+          <div class="sidebar">
+            <div class="sidebar-section">Navigation</div>
+            <div class="sidebar-item"><span class="icon">ðŸ </span> Back to Lab</div>
+            <div class="sidebar-item active"><span class="icon">ðŸ“Š</span> AI Diagnostics</div>
+            <div class="sidebar-item"><span class="icon">ðŸª²</span> Simulation Debug</div>
+          </div>
+
+          <div class="canvas-area" style="padding:20px;overflow-y:auto;background:var(--bg)">
+            <div style="font-family:var(--display);font-size:18px;font-weight:800;color:var(--text-bright);margin-bottom:16px">AI Health Dashboard</div>
+
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
+              <div class="obs-stat">
+                <div><div class="label">Total AI Calls</div><div class="value">24</div></div>
+                <div style="font-size:24px">ðŸ“¡</div>
+              </div>
+              <div class="obs-stat">
+                <div><div class="label">Cache Hit Rate</div><div class="value green">58%</div></div>
+                <div style="font-size:24px">ðŸ’¾</div>
+              </div>
+              <div class="obs-stat">
+                <div><div class="label">Avg Response</div><div class="value amber">1.4s</div></div>
+                <div style="font-size:24px">âš¡</div>
+              </div>
+              <div class="obs-stat">
+                <div><div class="label">Success Rate</div><div class="value green">96%</div></div>
+                <div style="font-size:24px">âœ…</div>
+              </div>
+              <div class="obs-stat">
+                <div><div class="label">Fallback Rate</div><div class="value">4%</div></div>
+                <div style="font-size:24px">ðŸ”„</div>
+              </div>
+              <div class="obs-stat">
+                <div><div class="label">Error Rate</div><div class="value green">0%</div></div>
+                <div style="font-size:24px">ðŸ›¡ï¸</div>
+              </div>
+            </div>
+
+            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px">
+              <div style="font-size:11px;color:var(--text-dim);margin-bottom:8px">Calls by Type</div>
+              <div class="bar-chart">
+                <div class="bar" style="height:80%;"></div>
+                <div class="bar amber" style="height:35%;"></div>
+                <div class="bar purple" style="height:20%;"></div>
+                <div class="bar blue" style="height:15%;"></div>
+              </div>
+              <div style="display:flex;gap:12px;margin-top:6px">
+                <div style="font-size:9px;color:var(--teal)">â–  predict (14)</div>
+                <div style="font-size:9px;color:var(--amber)">â–  safety (7)</div>
+                <div style="font-size:9px;color:var(--purple)">â–  explain (2)</div>
+                <div style="font-size:9px;color:var(--info)">â–  Q&A (1)</div>
+              </div>
+            </div>
+
+            <!-- Call Log Table -->
+            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px">
+              <div style="font-size:11px;color:var(--text-dim);margin-bottom:8px">Recent Call Log</div>
+              <div style="display:flex;gap:0;flex-direction:column">
+                <div style="display:grid;grid-template-columns:80px 70px 60px 60px 1fr;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:9px;color:var(--muted)">
+                  <span>TYPE</span><span>STATUS</span><span>MS</span><span>CACHE</span><span>TIME</span>
+                </div>
+                <div style="display:grid;grid-template-columns:80px 70px 60px 60px 1fr;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:10px">
+                  <span style="color:var(--teal)">predict</span><span style="background:rgba(34,204,116,0.1);color:var(--success);padding:1px 5px;border-radius:3px">success</span><span>1240</span><span style="color:var(--text-dim)">no</span><span style="color:var(--muted)">2m ago</span>
+                </div>
+                <div style="display:grid;grid-template-columns:80px 70px 60px 60px 1fr;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:10px">
+                  <span style="color:var(--amber)">safety</span><span style="background:rgba(34,204,116,0.1);color:var(--success);padding:1px 5px;border-radius:3px">success</span><span>980</span><span style="color:var(--text-dim)">no</span><span style="color:var(--muted)">2m ago</span>
+                </div>
+                <div style="display:grid;grid-template-columns:80px 70px 60px 60px 1fr;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:10px">
+                  <span style="color:var(--teal)">predict</span><span style="background:rgba(34,204,116,0.1);color:var(--teal);padding:1px 5px;border-radius:3px">cached</span><span>0</span><span style="color:var(--teal)">âœ“ HIT</span><span style="color:var(--muted)">5m ago</span>
+                </div>
+                <div style="display:grid;grid-template-columns:80px 70px 60px 60px 1fr;gap:8px;padding:5px 0;font-family:var(--mono);font-size:10px">
+                  <span style="color:var(--amber)">safety</span><span style="background:rgba(245,166,35,0.1);color:var(--amber);padding:1px 5px;border-radius:3px">fallback</span><span>8001</span><span style="color:var(--text-dim)">no</span><span style="color:var(--muted)">10m ago</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- HEALTH SCORE PANEL -->
+          <div class="inspector" style="width:260px;min-width:260px">
+            <div class="inspector-header">
+              <div class="inspector-title">Health Score</div>
+              <div class="tag tag-green">GOOD</div>
+            </div>
+            <div class="inspector-body">
+              <!-- Big ring score -->
+              <div style="text-align:center;padding:16px 0">
+                <svg width="100" height="100" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="8"/>
+                  <circle cx="50" cy="50" r="42" fill="none" stroke="var(--teal)" stroke-width="8" stroke-dasharray="220 264" stroke-dashoffset="-33" transform="rotate(-90 50 50)"/>
+                  <text x="50" y="50" text-anchor="middle" dy="0.35em" fill="var(--text-bright)" font-family="Syne" font-size="22" font-weight="800">83</text>
+                  <text x="50" y="66" text-anchor="middle" fill="var(--muted)" font-size="8" font-family="DM Sans">/100</text>
+                </svg>
+              </div>
+              <div class="inspector-section">
+                <div class="inspector-section-title">Score Breakdown</div>
+                <div class="inspector-row"><span class="label">Cache efficiency</span><span class="value teal">âˆ’4 pts</span></div>
+                <div class="inspector-row"><span class="label">Success rate</span><span class="value teal">âˆ’1 pt</span></div>
+                <div class="inspector-row"><span class="label">Response time</span><span class="value teal">OK</span></div>
+                <div class="inspector-row"><span class="label">Fallback rate</span><span class="value teal">OK</span></div>
+              </div>
+              <div style="background:rgba(15,212,164,0.06);border:1px solid rgba(15,212,164,0.2);border-radius:7px;padding:9px;margin-top:8px">
+                <div style="font-size:10.5px;color:var(--teal);font-weight:600;margin-bottom:4px">ðŸ’¡ Tip</div>
+                <div style="font-size:10.5px;color:var(--text-dim);line-height:1.4">Repeat the same experiments to build up your cache. This will bring cache hit rate above 70%.</div>
+              </div>
+              <div style="margin-top:10px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:7px;text-align:center;font-size:10.5px;color:var(--text-dim);cursor:pointer">ðŸ“¥ Export CSV</div>
+            </div>
+          </div>
+        </div>
+        <div class="status-bar">
+          <span>AI: 24 total calls</span>
+          <span>Cache hit: 14 / 24 (58%)</span>
+          <span style="margin-left:auto">Health: 83/100</span>
+        </div>
+      </div>
+    </div>
+    <div class="screen-note">
+      <span class="icon">ðŸ’¡</span>
+      <span><strong>What this does:</strong> The AI Diagnostics screen shows you how well your AI system is working. You can see how many calls were made, how many were served from cache (free, instant), what the average response time is, and whether any calls failed. A health score of 83/100 is shown as a ring chart. This is for debugging and improving your app's AI performance.</span>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+  <!-- SCREEN 7 â€” MOLECULE VIEWER + SIDEBAR DETAIL -->
+  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+  <div class="screen-section">
+    <div class="screen-label">
+      <div class="screen-number">7</div>
+      <div>
+        <div class="screen-title">Substance Detail â€” Molecule Viewer</div>
+        <div class="screen-desc">User clicks a substance in the sidebar. The bottom of the sidebar shows the 3D molecule viewer and full chemical properties.</div>
+      </div>
+    </div>
+
+    <div class="chrome">
+      <div class="chrome-bar">
+        <div class="chrome-dots"><span></span><span></span><span></span></div>
+        <div class="chrome-url">localhost:3000 â€” ChemLab Engine</div>
+      </div>
+      <div class="full-layout">
+        <div class="top-bar">
+          <div class="top-bar-logo"><div class="dot"></div> ChemLab Engine</div>
+          <div class="top-bar-spacer"></div>
+          <div class="top-bar-btn primary">Add to Canvas</div>
+        </div>
+        <div class="app-shell">
+          <!-- EXPANDED SIDEBAR with molecule viewer -->
+          <div class="sidebar" style="width:300px;min-width:300px">
+            <div class="sidebar-search">ðŸ” sulfuric acid</div>
+            <div style="margin:5px 8px;padding:10px;background:rgba(232,64,64,0.06);border:1px solid rgba(232,64,64,0.2);border-radius:9px">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+                <div class="substance-circle" style="width:38px;height:38px;background:rgba(232,64,64,0.15);color:var(--danger);font-size:11px">Hâ‚‚S</div>
+                <div>
+                  <div style="font-size:13px;font-weight:600;color:var(--text)">Sulfuric Acid</div>
+                  <div style="font-family:var(--mono);font-size:11px;color:var(--danger)">Hâ‚‚SOâ‚„</div>
+                </div>
+                <div class="tag tag-red" style="margin-left:auto">Acid</div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;font-size:10px">
+                <div style="background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:5px 7px">
+                  <div style="color:var(--muted)">Molar Mass</div>
+                  <div style="font-family:var(--mono);color:var(--text)">98.079 g/mol</div>
+                </div>
+                <div style="background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:5px 7px">
+                  <div style="color:var(--muted)">Phase</div>
+                  <div style="font-family:var(--mono);color:var(--text)">Liquid</div>
+                </div>
+                <div style="background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:5px 7px">
+                  <div style="color:var(--muted)">Î”Hf (kJ/mol)</div>
+                  <div style="font-family:var(--mono);color:var(--text)">-814.0</div>
+                </div>
+                <div style="background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:5px 7px">
+                  <div style="color:var(--muted)">CAS No.</div>
+                  <div style="font-family:var(--mono);color:var(--text)">7664-93-9</div>
+                </div>
+              </div>
+              <div style="margin-top:7px;display:flex;gap:5px">
+                <span class="tag tag-red">H314 Corrosive</span>
+                <span class="tag tag-red">H290 Metal react</span>
+              </div>
+            </div>
+
+            <!-- 3D Molecule Viewer Area -->
+            <div style="margin:6px 8px;background:var(--bg);border:1px solid var(--border);border-radius:9px;overflow:hidden">
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--surface2);border-bottom:1px solid var(--border)">
+                <span style="font-size:10px;color:var(--text-dim)">3D Structure â€” Hâ‚‚SOâ‚„</span>
+                <div style="display:flex;gap:5px">
+                  <span style="font-family:var(--mono);font-size:9px;color:var(--teal);cursor:pointer">Stick</span>
+                  <span style="color:var(--muted);font-size:9px">Â·</span>
+                  <span style="font-family:var(--mono);font-size:9px;color:var(--text-dim);cursor:pointer">Sphere</span>
+                  <span style="color:var(--muted);font-size:9px">Â·</span>
+                  <span style="font-family:var(--mono);font-size:9px;color:var(--text-dim);cursor:pointer">Surface</span>
+                </div>
+              </div>
+              <!-- Simulated 3D molecule using SVG -->
+              <div style="height:160px;display:flex;align-items:center;justify-content:center;position:relative">
+                <svg width="180" height="140" viewBox="0 0 180 140">
+                  <!-- Central S atom -->
+                  <circle cx="90" cy="70" r="14" fill="#f5a623" opacity="0.9"/>
+                  <text x="90" y="74" text-anchor="middle" fill="#000" font-size="9" font-weight="700">S</text>
+                  <!-- O atoms (4 oxygen) -->
+                  <circle cx="50" cy="40" r="10" fill="#e84040" opacity="0.85"/>
+                  <text x="50" y="44" text-anchor="middle" fill="#fff" font-size="8">O</text>
+                  <circle cx="130" cy="40" r="10" fill="#e84040" opacity="0.85"/>
+                  <text x="130" y="44" text-anchor="middle" fill="#fff" font-size="8">O</text>
+                  <circle cx="50" cy="100" r="10" fill="#e84040" opacity="0.85"/>
+                  <text x="50" y="104" text-anchor="middle" fill="#fff" font-size="8">O</text>
+                  <circle cx="130" cy="100" r="10" fill="#e84040" opacity="0.85"/>
+                  <text x="130" y="104" text-anchor="middle" fill="#fff" font-size="8">O</text>
+                  <!-- H atoms -->
+                  <circle cx="24" cy="100" r="7" fill="#e8e8e8" opacity="0.8"/>
+                  <text x="24" y="104" text-anchor="middle" fill="#333" font-size="7">H</text>
+                  <circle cx="155" cy="100" r="7" fill="#e8e8e8" opacity="0.8"/>
+                  <text x="155" y="104" text-anchor="middle" fill="#333" font-size="7">H</text>
+                  <!-- Bonds -->
+                  <line x1="76" y1="60" x2="58" y2="48" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+                  <line x1="104" y1="60" x2="122" y2="48" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+                  <line x1="76" y1="80" x2="58" y2="92" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+                  <line x1="104" y1="80" x2="122" y2="92" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+                  <line x1="40" y1="100" x2="31" y2="100" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+                  <line x1="140" y1="100" x2="148" y2="100" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+                </svg>
+                <div style="position:absolute;bottom:6px;right:8px;display:flex;gap:5px">
+                  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:3px 7px;font-size:9px;color:var(--text-dim);cursor:pointer">âŸ³ Spin</div>
+                  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:3px 7px;font-size:9px;color:var(--text-dim);cursor:pointer">â¤¢</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CANVAS -->
+          <div class="canvas-area" style="display:flex;align-items:center;justify-content:center;opacity:0.4">
+            <div style="font-size:12px;color:var(--text-dim)">Canvas ready â€” add Hâ‚‚SOâ‚„ to start</div>
+          </div>
+
+          <!-- INSPECTOR â€” substance properties -->
+          <div class="inspector">
+            <div class="inspector-header">
+              <div class="inspector-title">Hâ‚‚SOâ‚„ Properties</div>
+              <div class="tag tag-red">ACID</div>
+            </div>
+            <div class="inspector-body">
+              <div class="inspector-section">
+                <div class="inspector-section-title">Thermodynamics</div>
+                <div class="inspector-row"><span class="label">Î”Hf</span><span class="value">-814.0 kJ/mol</span></div>
+                <div class="inspector-row"><span class="label">Î”Gf</span><span class="value">-690.0 kJ/mol</span></div>
+                <div class="inspector-row"><span class="label">SÂ°</span><span class="value">156.9 J/molÂ·K</span></div>
+                <div class="inspector-row"><span class="label">Cp</span><span class="value">138.9 J/molÂ·K</span></div>
+              </div>
+              <div class="inspector-section">
+                <div class="inspector-section-title">Physical</div>
+                <div class="inspector-row"><span class="label">Density</span><span class="value">1.84 g/cmÂ³</span></div>
+                <div class="inspector-row"><span class="label">Boiling pt.</span><span class="value">337Â°C</span></div>
+                <div class="inspector-row"><span class="label">Melting pt.</span><span class="value">10.4Â°C</span></div>
+              </div>
+              <div class="inspector-section">
+                <div class="inspector-section-title">Safety (GHS)</div>
+                <div style="display:flex;gap:5px;flex-wrap:wrap">
+                  <span class="tag tag-red">H314 â€” Severe burns</span>
+                  <span class="tag tag-red">H290 â€” Corrodes metals</span>
+                </div>
+              </div>
+              <div style="margin-top:10px">
+                <div class="top-bar-btn primary" style="width:100%;justify-content:center;height:34px;border-radius:7px;font-size:11.5px;cursor:pointer">+ Add to Canvas</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="status-bar">
+          <span>Viewing: Sulfuric Acid (Hâ‚‚SOâ‚„)</span>
+          <span style="margin-left:auto">CAS: 7664-93-9</span>
+        </div>
+      </div>
+    </div>
+    <div class="screen-note">
+      <span class="icon">ðŸ’¡</span>
+      <span><strong>What this does:</strong> The user clicks "Sulfuric Acid" in the sidebar. The sidebar expands to show a 3D molecular model (using 3Dmol.js), with all chemical properties. The Inspector panel on the right shows thermodynamics data (Î”Hf, Î”Gf, Cp) and GHS safety codes. The user can click "Add to Canvas" to start an experiment with this substance.</span>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- NODE TYPES LEGEND -->
+  <div class="screen-section">
+    <div class="screen-label">
+      <div class="screen-number">âœ¦</div>
+      <div>
+        <div class="screen-title">Node Types â€” What Each Color Means</div>
+        <div class="screen-desc">Every type of block you can drag onto the canvas, with its color code and purpose.</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+      <div style="background:var(--surface2);border:1px solid var(--border);border-left:4px solid var(--teal);border-radius:10px;padding:14px">
+        <div style="font-size:16px;margin-bottom:7px">ðŸ§ª</div>
+        <div style="font-weight:600;color:var(--text);font-size:13px;margin-bottom:3px">Substance Node</div>
+        <div style="font-size:11.5px;color:var(--text-dim);line-height:1.5">Represents a chemical â€” HCl, NaOH, Hâ‚‚SOâ‚„. You set its concentration. Drag onto a container to add it to the reaction.</div>
+        <div style="margin-top:8px"><span class="tag tag-teal">#1a9e7a teal</span></div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-left:4px solid var(--info);border-radius:10px;padding:14px">
+        <div style="font-size:16px;margin-bottom:7px">âš—ï¸</div>
+        <div style="font-weight:600;color:var(--text);font-size:13px;margin-bottom:3px">Container Node</div>
+        <div style="font-size:11.5px;color:var(--text-dim);line-height:1.5">A beaker, flask, or test tube where the reaction happens. Set volume and temperature. Shows live color changes during simulation.</div>
+        <div style="margin-top:8px"><span class="tag tag-blue">#3b82f6 blue</span></div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-left:4px solid var(--amber);border-radius:10px;padding:14px">
+        <div style="font-size:16px;margin-bottom:7px">ðŸŒ¡ï¸</div>
+        <div style="font-weight:600;color:var(--text);font-size:13px;margin-bottom:3px">Condition Node</div>
+        <div style="font-size:11.5px;color:var(--text-dim);line-height:1.5">Apply heat, a catalyst, or pressure changes to the container. Connects to a container to modify the simulation conditions.</div>
+        <div style="margin-top:8px"><span class="tag tag-amber">#f59e0b amber</span></div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-left:4px solid var(--purple);border-radius:10px;padding:14px">
+        <div style="font-size:16px;margin-bottom:7px">ðŸ“¡</div>
+        <div style="font-weight:600;color:var(--text);font-size:13px;margin-bottom:3px">Sensor Node</div>
+        <div style="font-size:11.5px;color:var(--text-dim);line-height:1.5">Reads a measurement from the container â€” temperature, pH, concentration. Shows the value live as the simulation runs.</div>
+        <div style="margin-top:8px"><span class="tag tag-purple">#8b5cf6 purple</span></div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-left:4px solid var(--danger);border-radius:10px;padding:14px">
+        <div style="font-size:16px;margin-bottom:7px">âš™ï¸</div>
+        <div style="font-weight:600;color:var(--text);font-size:13px;margin-bottom:3px">Action Node</div>
+        <div style="font-size:11.5px;color:var(--text-dim);line-height:1.5">Triggers something during the simulation â€” add more chemical, stir, remove heat. Connects between containers or substances.</div>
+        <div style="margin-top:8px"><span class="tag tag-red">#ef4444 red</span></div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-left:4px solid var(--success);border-radius:10px;padding:14px">
+        <div style="font-size:16px;margin-bottom:7px">ðŸ“Š</div>
+        <div style="font-weight:600;color:var(--text);font-size:13px;margin-bottom:3px">Output Node</div>
+        <div style="font-size:11.5px;color:var(--text-dim);line-height:1.5">Collects and displays the final result â€” product list, energy data, or a concentration summary. Connects from a container.</div>
+        <div style="margin-top:8px"><span class="tag tag-green">#22c55e green</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div style="text-align:center;margin-top:64px;padding-top:32px;border-top:1px solid var(--border)">
+    <div style="font-family:var(--display);font-size:18px;font-weight:800;color:var(--text-bright);margin-bottom:8px">ChemLab Engine â€” v5 Final</div>
+    <div style="font-size:12px;color:var(--text-dim);margin-bottom:4px">42-day build plan Â· 49 source files Â· 19 AI improvements Â· Real ODE simulation</div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--muted)">Screens are design previews â€” actual UI may vary slightly depending on your build choices</div>
+  </div>
+
+</div>
+
+<style>
+  @keyframes progress {
+    from { width: 30%; }
+    to   { width: 90%; }
+  }
+</style>
+</body>
+</html>

@@ -1,0 +1,58 @@
+# infrastructure/deployment/kubernetes/recovery-failover-topology.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: recovery-service
+  namespace: labforge-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: recovery-service
+  template:
+    metadata:
+      labels:
+        app: recovery-service
+    spec:
+      serviceAccountName: labforge-recovery
+      containers:
+      - name: recovery
+        image: labforge/recovery-service:latest
+        env:
+        - name: KUBERNETES_SERVICE_HOST
+          value: "kubernetes.default.svc"
+        - name: CLUSTER_NAME
+          value: "labforge-prod"
+        - name: AUTO_FAILOVER
+          value: "true"
+        - name: CHECK_INTERVAL_SECONDS
+          value: "10"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: labforge-recovery
+rules:
+- apiGroups: [""]
+  resources: ["pods", "nodes", "services"]
+  verbs: ["get", "list", "watch", "delete"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "statefulsets"]
+  verbs: ["get", "patch", "update"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: labforge-recovery-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: labforge-recovery
+subjects:
+- kind: ServiceAccount
+  name: labforge-recovery
+  namespace: labforge-system
