@@ -86,7 +86,7 @@ export const INSTRUMENTS: InstrumentMeta[] = [
     specs: ['React Flow canvas', 'RK45 solver', 'Gemini AI'],
     tags: ['chemistry', 'reactions', 'ai'], ai: 'explain', hasLiveAnimation: true,
     curricularTopics: ['A-Level Chemistry'], relatedIds: ['ph-meter'],
-    load: () => import('@/chem-lab'),
+    load: () => import('../instruments/chem-lab'),
   },
 ]
 

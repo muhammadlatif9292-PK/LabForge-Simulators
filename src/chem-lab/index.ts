@@ -1,4 +1,1 @@
-/**
- * Module disabled.
- */
-export {};
+export { ChemLabApp as default, ChemLabApp } from './ChemLabApp';

@@ -163,3 +163,5 @@ export const ChemLabApp: React.FC = () => {
     </div>
   );
 };
+
+export default ChemLabApp;
